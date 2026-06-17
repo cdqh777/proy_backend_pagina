@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: libreria-frontend
+  namespace: libreria
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: libreria-frontend
+  template:
+    metadata:
+      labels:
+        app: libreria-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: libreria-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: libreria-frontend
+  namespace: libreria
+spec:
+  selector:
+    app: libreria-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: libreria-ingress
+  namespace: libreria
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: libreria-backend
+                port:
+                  number: 3001
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: libreria-frontend
+                port:
+                  number: 80

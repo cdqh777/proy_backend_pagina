@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: libreria
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: libreria-config
+  namespace: libreria
+data:
+  DB_HOST: "libreria-mysql"
+  DB_PORT: "3306"
+  DB_DATABASE: "libreria_inventario"
+  DB_USERNAME: "libreria_user"
+  JWT_EXPIRES_IN: "8h"
+  PORT: "3001"
+  FRONTEND_URL: "http://libreria-frontend"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: libreria-secrets
+  namespace: libreria
+type: Opaque
+stringData:
+  DB_PASSWORD: "libreria_pass"
+  MYSQL_ROOT_PASSWORD: "rootpassword"
+  MYSQL_PASSWORD: "libreria_pass"
+  JWT_SECRET: "libreria_super_secret_jwt_2024"
