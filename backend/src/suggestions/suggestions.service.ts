@@ -1,11 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Sugerencia } from './suggestion.entity';
+import { ListaComprasService } from '../purchase-list/purchase-list.service';
 
 @Injectable()
 export class SugerenciasService {
-  constructor(@InjectRepository(Sugerencia) private repoSugerencia: Repository<Sugerencia>) {}
+  constructor(
+    @InjectRepository(Sugerencia) private repoSugerencia: Repository<Sugerencia>,
+    @Inject(forwardRef(() => ListaComprasService)) private servicioListaCompras: ListaComprasService,
+  ) {}
 
   obtenerTodas(): Promise<Sugerencia[]> {
     return this.repoSugerencia.find({
@@ -31,7 +35,23 @@ export class SugerenciasService {
   async actualizarEstado(id: number, estado: string): Promise<Sugerencia> {
     const sugerencia = await this.obtenerUna(id);
     sugerencia.status = estado;
-    return this.repoSugerencia.save(sugerencia);
+    const resultado = await this.repoSugerencia.save(sugerencia);
+    if (estado === 'aprobado') {
+      await this.agregarAListaSiAprobada(resultado);
+    }
+    return resultado;
+  }
+
+  private async agregarAListaSiAprobada(sugerencia: Sugerencia): Promise<void> {
+    const existente = await this.servicioListaCompras.obtenerTodos();
+    const yaExiste = existente.some((item) => item.suggestion_id === sugerencia.id && item.status === 'pendiente');
+    if (yaExiste) return;
+    await this.servicioListaCompras.crear({
+      suggestion_id: sugerencia.id,
+      quantity: 1,
+      priority: 'media',
+      notes: 'Sugerencia aprobada — generado automáticamente',
+    });
   }
 
   async incrementarContador(id: number): Promise<Sugerencia> {

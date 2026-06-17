@@ -1,13 +1,17 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere } from 'typeorm';
 import { Articulo } from './article.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ListaComprasService } from '../purchase-list/purchase-list.service';
 
 @Injectable()
 export class ArticulosService {
-  constructor(@InjectRepository(Articulo) private repoArticulo: Repository<Articulo>) {}
+  constructor(
+    @InjectRepository(Articulo) private repoArticulo: Repository<Articulo>,
+    @Inject(forwardRef(() => ListaComprasService)) private servicioListaCompras: ListaComprasService,
+  ) {}
 
   async obtenerTodos(filtros?: { nombre?: string; idTipo?: number; estado?: string }): Promise<Articulo[]> {
     const condicion: FindOptionsWhere<Articulo> = { is_active: 1 };
@@ -37,7 +41,9 @@ export class ArticulosService {
     if (dto.stock !== undefined && +dto.stock < 0) throw new BadRequestException('El stock no puede ser negativo');
     Object.assign(articulo, dto);
     this.recalcularEstado(articulo);
-    return this.repoArticulo.save(articulo);
+    const resultado = await this.repoArticulo.save(articulo);
+    await this.agregarAListaSiAgotado(resultado);
+    return resultado;
   }
 
   async actualizarStock(id: number, cantidad: number): Promise<Articulo> {
@@ -47,7 +53,9 @@ export class ArticulosService {
     articulo.stock -= cantidad;
     articulo.purchase_count += cantidad;
     this.recalcularEstado(articulo);
-    return this.repoArticulo.save(articulo);
+    const resultado = await this.repoArticulo.save(articulo);
+    await this.agregarAListaSiAgotado(resultado);
+    return resultado;
   }
 
   async reabastecer(id: number, cantidad: number): Promise<Articulo> {
@@ -66,6 +74,19 @@ export class ArticulosService {
     } else {
       articulo.status = 'disponible';
     }
+  }
+
+  private async agregarAListaSiAgotado(articulo: Articulo): Promise<void> {
+    if (articulo.status !== 'agotado') return;
+    const existente = await this.servicioListaCompras.obtenerTodos();
+    const yaExiste = existente.some((item) => item.article_id === articulo.id && item.status === 'pendiente');
+    if (yaExiste) return;
+    await this.servicioListaCompras.crear({
+      article_id: articulo.id,
+      quantity: articulo.min_stock || 5,
+      priority: 'alta',
+      notes: 'Agotado — generado automáticamente',
+    });
   }
 
   async eliminar(id: number): Promise<void> {
