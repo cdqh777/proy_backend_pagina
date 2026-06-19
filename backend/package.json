@@ -12,7 +12,8 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "test": "jest"
+    "test": "jest",
+    "db:init": "node scripts/init-db.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
