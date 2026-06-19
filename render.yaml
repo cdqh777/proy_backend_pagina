@@ -19,36 +19,23 @@ services:
     healthCheckPath: /api/categories
     envVars:
       - key: DB_HOST
-        fromDatabase:
-          name: libreria-db
-          property: host
+        value: dpg-d8pvnadckfvc73f0jm60-a
       - key: DB_PORT
-        fromDatabase:
-          name: libreria-db
-          property: port
+        value: 5432
       - key: DB_USERNAME
-        fromDatabase:
-          name: libreria-db
-          property: user
+        value: postgrest
       - key: DB_PASSWORD
-        fromDatabase:
-          name: libreria-db
-          property: password
+        value: WAOQHHuQkOTrikcwSu0lAyUgzvaZcE3i
       - key: DB_DATABASE
-        fromDatabase:
-          name: libreria-db
-          property: database
+        value: proy_libinv
       - key: JWT_SECRET
-        generateValue: true
+        value: libreria_super_secret_key_2024
       - key: JWT_EXPIRES_IN
         value: 8h
       - key: PORT
         value: 3001
       - key: FRONTEND_URL
-        fromService:
-          name: libreria-frontend
-          type: static
-          property: url
+        value: https://libreria-frontend.onrender.com
 
   - type: static
     name: libreria-frontend
