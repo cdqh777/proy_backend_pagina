@@ -1,0 +1,63 @@
+databases:
+  - name: libreria-db
+    databaseName: libreria_inventario
+    plan: free
+    region: ohio
+    user: libreria_user
+    ipAllowList: []
+
+services:
+  - type: web
+    name: libreria-backend
+    runtime: node
+    repo: https://github.com/cdqh777/proy_backend_pagina.git
+    plan: free
+    region: ohio
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/categories
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: libreria-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: libreria-db
+          property: port
+      - key: DB_USERNAME
+        fromDatabase:
+          name: libreria-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: libreria-db
+          property: password
+      - key: DB_DATABASE
+        fromDatabase:
+          name: libreria-db
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: PORT
+        value: 3001
+      - key: FRONTEND_URL
+        fromService:
+          name: libreria-frontend
+          type: static
+          property: url
+
+  - type: static
+    name: libreria-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: libreria-backend
+          type: web
+          property: url

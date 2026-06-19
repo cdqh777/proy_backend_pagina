@@ -1,11 +1,14 @@
 
 
+# PostgreSQL connection (development)
 DB_HOST=localhost
-DB_PORT=3306
-DB_USERNAME=root
+DB_PORT=5432
+DB_USERNAME=postgres
 DB_PASSWORD=123456
 DB_DATABASE=libreria_inventario
+# JWT
 JWT_SECRET=libreria_super_secret_key_2024
 JWT_EXPIRES_IN=8h
+# App
 PORT=3001
 FRONTEND_URL=http://localhost:3000

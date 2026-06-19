@@ -8,13 +8,13 @@ Sistema completo para gestionar el inventario, ventas, sugerencias y lista de co
 |------|-----------|
 | Frontend | React 18, Vite, React Router, Axios, Recharts, Lucide Icons |
 | Backend | NestJS 10, TypeORM, Passport JWT, bcrypt, pdfmake |
-| Base de datos | MySQL 8.0+ |
+| Base de datos | PostgreSQL 15+ |
 | Contenedores | Docker, Docker Compose |
 
 ## Requisitos previos
 
 - **Node.js** 20 o superior
-- **MySQL** 8.0 o superior
+- **PostgreSQL** 15 o superior
 - **npm** 9 o superior
 - **Docker y Docker Compose** (opcional, para despliegue con contenedores)
 
@@ -29,13 +29,13 @@ cd libreria-inventario-FINAL
 
 ### 2. Configurar la base de datos
 
-Inicia MySQL y ejecuta el script SQL para crear la base de datos y las tablas:
+Inicia PostgreSQL y ejecuta el script SQL para crear la base de datos y las tablas:
 
 ```bash
-mysql -u root -p < db/dblibreria.sql
+psql -U postgres -d libreria_inventario -f db/dblibreria.sql
 ```
 
-Esto creará la base de datos `libreria_inventario` con todas las tablas y datos iniciales.
+Esto creará la base de datos `libreria_inventario` con todas las tablas, tipos ENUM y datos iniciales.
 
 ### 3. Configurar el backend
 
@@ -48,9 +48,9 @@ Crea o edita el archivo `.env` en la carpeta `backend/`:
 
 ```env
 DB_HOST=localhost
-DB_PORT=3306
-DB_USERNAME=root
-DB_PASSWORD=tu_contraseña_mysql
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=tu_contraseña_postgres
 DB_DATABASE=libreria_inventario
 JWT_SECRET=libreria_super_secret_key_2024
 JWT_EXPIRES_IN=8h
@@ -90,7 +90,7 @@ Esto levantará tres servicios:
 
 | Servicio | Puerto | Descripción |
 |----------|--------|-------------|
-| `libreria_db` | 3306 | MySQL 8.0 |
+| `libreria_db` | 5432 | PostgreSQL 15 |
 | `libreria_backend` | 3001 | API NestJS |
 | `libreria_frontend` | 80 | Frontend con Nginx |
 
@@ -107,6 +107,57 @@ Para eliminar también los datos de la base de datos:
 ```bash
 docker compose down -v
 ```
+
+## Despliegue en Render
+
+Render es una plataforma cloud que permite desplegar el backend, frontend y base de datos de forma sencilla.
+
+### 1. Base de datos (Render PostgreSQL)
+
+Crea una base de datos PostgreSQL desde el Dashboard de Render. Una vez creada, Render mostrará las credenciales de conexión (host, puerto, usuario, contraseña, base de datos).
+
+Luego conectate a ella y ejecuta el script de inicialización:
+
+```bash
+psql -h <HOST> -U <USER> -d <DATABASE> -f db/dblibreria.sql
+```
+
+### 2. Backend (Web Service)
+
+- **Root Directory**: `backend`
+- **Runtime**: Node
+- **Build Command**: `npm install && npm run build`
+- **Start Command**: `npm run start:prod`
+
+Variables de entorno requeridas:
+
+| Variable | Valor |
+|----------|-------|
+| `DB_HOST` | Host de Render PostgreSQL |
+| `DB_PORT` | `5432` |
+| `DB_USERNAME` | Usuario de Render PostgreSQL |
+| `DB_PASSWORD` | Contraseña de Render PostgreSQL |
+| `DB_DATABASE` | Nombre de la base de datos |
+| `JWT_SECRET` | Clave secreta JWT |
+| `JWT_EXPIRES_IN` | `8h` |
+| `PORT` | `3001` |
+| `FRONTEND_URL` | URL del frontend en Render |
+
+### 3. Frontend (Static Site)
+
+- **Root Directory**: `frontend`
+- **Build Command**: `npm install && npm run build`
+- **Publish Directory**: `dist`
+
+Variable de entorno:
+
+| Variable | Valor |
+|----------|-------|
+| `VITE_API_URL` | `https://<backend-url>.onrender.com/api` |
+
+### 4. render.yaml (opcional)
+
+También puedes usar el archivo `render.yaml` incluido en la raíz del proyecto para definir toda la infraestructura como código.
 
 ## Credenciales de acceso
 
