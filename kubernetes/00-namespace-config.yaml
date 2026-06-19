@@ -9,8 +9,8 @@ metadata:
   name: libreria-config
   namespace: libreria
 data:
-  DB_HOST: "libreria-mysql"
-  DB_PORT: "3306"
+  DB_HOST: "libreria-postgres"
+  DB_PORT: "5432"
   DB_DATABASE: "libreria_inventario"
   DB_USERNAME: "libreria_user"
   JWT_EXPIRES_IN: "8h"
@@ -25,6 +25,4 @@ metadata:
 type: Opaque
 stringData:
   DB_PASSWORD: "libreria_pass"
-  MYSQL_ROOT_PASSWORD: "rootpassword"
-  MYSQL_PASSWORD: "libreria_pass"
   JWT_SECRET: "libreria_super_secret_jwt_2024"
