@@ -3,8 +3,23 @@ const path = require('path');
 const { Client } = require('pg');
 
 async function initDb() {
+  console.log('=== INICIANDO SCRIPT db:init ===');
+  console.log('Variables de entorno:');
+  console.log(`  DB_HOST: ${process.env.DB_HOST}`);
+  console.log(`  DB_PORT: ${process.env.DB_PORT}`);
+  console.log(`  DB_USERNAME: ${process.env.DB_USERNAME}`);
+  console.log(`  DB_DATABASE: ${process.env.DB_DATABASE}`);
+  
   const sqlPath = path.join(__dirname, '..', '..', 'db', 'dblibreria.sql');
+  console.log(`Ruta del SQL: ${sqlPath}`);
+  
+  if (!fs.existsSync(sqlPath)) {
+    console.error(`✗ Archivo SQL no encontrado en: ${sqlPath}`);
+    process.exit(1);
+  }
+  
   const sql = fs.readFileSync(sqlPath, 'utf8');
+  console.log(`✓ Archivo SQL leído (${sql.length} bytes)`);
 
   const client = new Client({
     host: process.env.DB_HOST,
@@ -17,10 +32,6 @@ async function initDb() {
 
   try {
     console.log('Conectando a la base de datos...');
-    console.log(`Host: ${process.env.DB_HOST}`);
-    console.log(`Database: ${process.env.DB_DATABASE}`);
-    console.log(`User: ${process.env.DB_USERNAME}`);
-    
     await client.connect();
     console.log('✓ Conectado a la base de datos');
 
@@ -42,11 +53,12 @@ async function initDb() {
     }
   } catch (error) {
     console.error('✗ Error al inicializar la base de datos:', error.message);
-    console.error('Detalles:', error);
+    console.error('Detalles completos:', error);
     process.exit(1);
   } finally {
     await client.end();
     console.log('✓ Conexión cerrada');
+    console.log('=== FIN SCRIPT db:init ===\n');
   }
 }
 
