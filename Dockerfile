@@ -10,5 +10,7 @@ WORKDIR /app
 COPY backend/package*.json ./
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/scripts ./scripts
+COPY db/ ./db/
 EXPOSE 3001
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "node scripts/init-db.js && node dist/main"]
