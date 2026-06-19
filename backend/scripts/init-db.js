@@ -10,7 +10,7 @@ async function initDb() {
   console.log(`  DB_USERNAME: ${process.env.DB_USERNAME}`);
   console.log(`  DB_DATABASE: ${process.env.DB_DATABASE}`);
   
-  const sqlPath = path.join(__dirname, '..', '..', 'db', 'dblibreria.sql');
+  const sqlPath = path.join(__dirname, '..', 'db', 'dblibreria.sql');
   console.log(`Ruta del SQL: ${sqlPath}`);
   
   if (!fs.existsSync(sqlPath)) {
