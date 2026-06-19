@@ -19,16 +19,25 @@ import { AgenteModule } from './agente/agente.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (servicioConfig: ConfigService) => ({
-        type: 'postgres',
-        host:     servicioConfig.get('DB_HOST', 'localhost'),
-        port:     +servicioConfig.get('DB_PORT', 5432),
-        username: servicioConfig.get('DB_USERNAME', 'root'),
-        password: servicioConfig.get('DB_PASSWORD', ''),
-        database: servicioConfig.get('DB_DATABASE', 'libreria_inventario'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false,
-      }),
+      useFactory: (servicioConfig: ConfigService) => {
+        const host = servicioConfig.get('DB_HOST', 'localhost');
+        const esRender = host.includes('render.com');
+        return {
+          type: 'postgres',
+          host,
+          port:     +servicioConfig.get('DB_PORT', 5432),
+          username: servicioConfig.get('DB_USERNAME', 'root'),
+          password: servicioConfig.get('DB_PASSWORD', ''),
+          database: servicioConfig.get('DB_DATABASE', 'libreria_inventario'),
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize: false,
+          retryAttempts: 10,
+          retryDelay: 3000,
+          extra: {
+            ssl: esRender ? { rejectUnauthorized: false } : false,
+          },
+        };
+      },
       inject: [ConfigService],
     }),
     AuthModule,

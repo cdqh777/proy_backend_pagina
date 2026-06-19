@@ -15,7 +15,7 @@ services:
     region: ohio
     rootDir: backend
     buildCommand: npm install && npm run build
-    startCommand: npm run start:prod
+    startCommand: npm run db:init && npm run start:prod
     healthCheckPath: /api/categories
     envVars:
       - key: DB_HOST
