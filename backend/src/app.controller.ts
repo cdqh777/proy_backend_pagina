@@ -6,9 +6,4 @@ export class AppController {
   getHello(): string {
     return 'Hello World';
   }
-
-  @Get('api')
-  getApi(): string {
-    return 'API de Librería - Inventario';
-  }
 }

@@ -18,7 +18,7 @@ async function iniciar() {
     credentials: true,
   });
 
-  aplicacion.setGlobalPrefix('api');
+  aplicacion.setGlobalPrefix('api', { exclude: ['/'] });
 
   const puerto = process.env.PORT || 3001;
   await aplicacion.listen(puerto);
