@@ -2,21 +2,20 @@ version: '3.9'
 
 services:
   db:
-    image: mysql:8.0
+    image: postgres:15
     container_name: libreria_db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: libreria_inventario
-      MYSQL_USER: libreria_user
-      MYSQL_PASSWORD: libreria_pass
+      POSTGRES_USER: libreria_user
+      POSTGRES_PASSWORD: libreria_pass
+      POSTGRES_DB: libreria_inventario
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/mysql
-      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - db_data:/var/lib/postgresql/data
+      - ./db/dblibreria.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U libreria_user -d libreria_inventario"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,7 +31,7 @@ services:
         condition: service_healthy
     environment:
       DB_HOST: db
-      DB_PORT: 3306
+      DB_PORT: 5432
       DB_USERNAME: libreria_user
       DB_PASSWORD: libreria_pass
       DB_DATABASE: libreria_inventario

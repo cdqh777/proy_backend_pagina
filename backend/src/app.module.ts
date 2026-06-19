@@ -18,9 +18,9 @@ import { AgenteModule } from './agente/agente.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (servicioConfig: ConfigService) => ({
-        type: 'mysql',
+        type: 'postgres',
         host:     servicioConfig.get('DB_HOST', 'localhost'),
-        port:     +servicioConfig.get('DB_PORT', 3306),
+        port:     +servicioConfig.get('DB_PORT', 5432),
         username: servicioConfig.get('DB_USERNAME', 'root'),
         password: servicioConfig.get('DB_PASSWORD', ''),
         database: servicioConfig.get('DB_DATABASE', 'libreria_inventario'),

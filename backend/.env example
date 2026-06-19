@@ -1,0 +1,11 @@
+
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=root
+DB_PASSWORD=123456
+DB_DATABASE=libreria_inventario
+JWT_SECRET=libreria_super_secret_key_2024
+JWT_EXPIRES_IN=8h
+PORT=3001
+FRONTEND_URL=http://localhost:3000
