@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsuariosModule } from './users/users.module';
 import { ArticulosModule } from './articles/articles.module';
@@ -13,6 +14,7 @@ import { RegistroAccesoModule } from './access-log/access-log.module';
 import { AgenteModule } from './agente/agente.module';
 
 @Module({
+  controllers: [AppController],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
