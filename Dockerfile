@@ -13,4 +13,4 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/scripts ./scripts
 COPY db/ ./db/
 EXPOSE 3001
-CMD ["sh", "-c", "node scripts/init-db.js && node dist/main"]
+CMD ["sh", "-c", "node scripts/init-db.js && node scripts/reset-passwords.js && node dist/main"]
